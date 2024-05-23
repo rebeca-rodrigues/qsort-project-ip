@@ -10,47 +10,77 @@ const float DELAY = 1;
 
 #define BUFLEN 100
 
+//Declaração de funções
 long getTime();
-void lerArquivo();
-int escreverArquivo();
-int *geraArray (int);
-int *ordenaArray (int *, int);
+int *geraArray (int, long);
+int *ordenaQSort (int *, int);
+int *ordenaISort (int *, int);
 int cmpfunc (const void *, const void *);
 int *array;
+//void lerArquivo();
+//int escreverArquivo();
 
 void main () {
-	long tempoInicial = getTime();
+	//Variáveis para contar tempo de execução
+	long tempoInicial = 0;
 	long tempoFinal = 0;
-	long tempoDeExecucao = 0;
+	long semente = getTime();
 	
-	//Gerar uma array de número aleatórios
+	//Começo do programa
+	printf("***********************************");
+	printf("\nPrograma de comparação dos tempos de execução do qsort e insertion sort.\n\n");
+	
+	//Gera array de numeros aleatorios
 	int tamanhoArray = 0;
-	int * minhaArray;
-
-	//Usuário especifica tamanho da array
+	int * arrayDesordenada;
 	printf("Qual tamanho da sua array? ");
 	scanf(" %d", &tamanhoArray);
-	
-	//Gera array
-	minhaArray = geraArray(tamanhoArray);
-	
-	//Ordena array
-	minhaArray = ordenaArray(minhaArray, tamanhoArray);
-	
-	//Imprime array ordenada
-	printf ("\nSua array de %d elementos é:\n\n", tamanhoArray);
+	arrayDesordenada = geraArray(tamanhoArray, semente);
+	printf("\nSua array de %d números desordenados é:\n\n", tamanhoArray);
 	for (int i=0; i < tamanhoArray; i++){
-		printf("%d°: %d\n", (i+1), minhaArray[i]);
+		printf("%d\n", arrayDesordenada[i]);
 	}
 	
-
+	/*QSort*/
+	
+	//Ordena array com qsort
+	tempoInicial = getTime();
+	int * arrayQSort = ordenaQSort(arrayDesordenada, tamanhoArray);
+	tempoFinal = getTime();
+	long tempoQSort = tempoFinal - tempoInicial;
+	
+	//Imprime array ordenada com qsort
+	printf ("\nOrdenação por QSort:\n\n");
+	for (int i=0; i < tamanhoArray; i++){
+		printf("%d\n", arrayQSort[i]);
+	}
+	
+	
+	/*Insertion Sort*/
+	
+	//Gera array de novo com mesma semente
+	arrayDesordenada = geraArray(tamanhoArray, semente);
+	
+	//Ordena array com insertion sort
+	tempoInicial = getTime();
+	int * arrayISort = ordenaISort(arrayDesordenada, tamanhoArray);
+	tempoFinal = getTime();
+	long tempoISort = tempoFinal - tempoInicial;
+	
+	//Imprime array ordenada com insertion sort
+	printf ("\nOrdenação por Insertion Sort:\n\n");
+	for (int i=0; i < tamanhoArray; i++){
+		printf("%d\n", arrayISort[i]);
+	}
+	
+	//Imprime tempos de execução
+	printf("\nTempo de execução do Qsort (em nanosec): %ld\n", tempoQSort);
+	printf("\nTempo de execução do Insertion sort (em nanosec): %ld\n", tempoISort);
+	
 	//lerArquivo();
 	//escreverArquivo();
 	//Sleep(DELAY);
-  
-	tempoFinal = getTime();
-	tempoDeExecucao = tempoFinal - tempoInicial;
-	printf ("Tempo de execução (em nanosegundos): %ld\n", tempoDeExecucao);
+
   
 }
 
@@ -63,18 +93,34 @@ long getTime (){
 }
 
 
-int *geraArray (int tamanho){
+int *geraArray (int tamanho, long semente){
 	array = malloc (tamanho * sizeof(int));
-	srand (getTime());
+	srand (semente);
 	for (int i=0; i<tamanho; i++){
 		array[i] = rand();
 	}
 	return array;
 }
 
-int *ordenaArray (int * minhaArray, int tamanhoArray){
+int *ordenaQSort (int * minhaArray, int tamanhoArray){
 	qsort (minhaArray, tamanhoArray, sizeof(int), cmpfunc);
 	return minhaArray;
+}
+
+int *ordenaISort (int * minhaArray, int tamanhoArray){
+	int i;
+	for (int j=1; j<tamanhoArray; j++){
+		int chave = minhaArray[j];
+		i = j-1;
+		while (i>=0 && minhaArray[i]>chave){
+			minhaArray[i+1]=minhaArray[i];
+			i=i-1;
+		}
+		minhaArray[i+1]=chave;
+	}
+
+	return minhaArray;
+
 }
 
 int cmpfunc (const void * a, const void * b) {
@@ -104,6 +150,21 @@ int escreverArquivo() {
 }
  
 
- 
+	/* No main
+	//Escolher operação, ler o gerar arquivo (ainda não implementado)
+	char operacao;
+	printf("- Para ler e ordenar array de um arquivo, digite 1. \n- Para gerar, ordenar e escrever um array aleatório em um arquivo, digite 2.\n");
+	scanf(" %c", &operacao);
+	
+	if (operacao == "1") {
+		printf("Operacao 1");
+	}
+	else if (operacao == "2"){
+		printf("Operacao 2");
+	}
+	else {
+		printf("Operacao invalida.");
+	}
+	*/
  
  
