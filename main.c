@@ -3,89 +3,47 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#define Sleep(x) usleep((x)*1000000)
-const float DELAY = 1;
-
-#define BUFLEN 100
-
-//Declaração de funções
 long getTime();
 int *geraArray (int, long);
+void mostraArray (int *, long);
 int *ordenaQSort (int *, long int);
 int *ordenaISort (int *, long int);
 int cmpfunc (const void *, const void *);
 int *array;
-//void lerArquivo();
-//int escreverArquivo();
 
 void main () {
 	//Variáveis para contar tempo de execução
-	long tempoInicial = 0;
-	long tempoFinal = 0;
-	long semente = getTime();
+	long tempoInicial, tempoFinal, tempoQSort, tempoISort, tamanhoArray, semente = 4104;
 	
-	//Começo do programa
-	printf("***********************************");
-	printf("\nPrograma de comparação dos tempos de execução do qsort e insertion sort.\n\n");
-	
-	//Gera array de numeros aleatorios
-	long int tamanhoArray = 0;
-	int * arrayDesordenada;
-	printf("Qual tamanho da sua array? ");
+	//Usuário insere tamanho da array
+	printf("\nPrograma de comparação dos tempos de execução do qsort e insertion sort.\n\nQual tamanho da sua array? ");
 	scanf(" %lu", &tamanhoArray);
-	arrayDesordenada = geraArray(tamanhoArray, semente);
-	/*
-	//Imprime array desordenada
-	printf("\nSua array de %ld números desordenados é:\n\n", tamanhoArray);
-	for (int i=0; i < tamanhoArray; i++){
-		printf("%d\n", arrayDesordenada[i]);
-	}
-	*/
-	printf("\n");
-	printf("Array desordenada:\n 1° número: %d\n Último número: %d\n", arrayDesordenada[0], arrayDesordenada[tamanhoArray-1]);
+	
+	//Gera array de numeros aleatorios com tamanho fornecido pelo usuário
+	array = geraArray(tamanhoArray, semente);
+	printf("\nArray desordenada: ");
+	mostraArray(array, tamanhoArray);
 	
 	/*QSort*/
-	
-	//Ordena array com qsort
 	tempoInicial = getTime();
-	int * arrayQSort = ordenaQSort(arrayDesordenada, tamanhoArray);
+	array = ordenaQSort(array, tamanhoArray);
 	tempoFinal = getTime();
-	long tempoQSort = tempoFinal - tempoInicial;
-	/*
-	//Imprime array ordenada com qsort
-	printf ("\nOrdenação por QSort:\n\n");
-	for (int i=0; i < tamanhoArray; i++){
-		printf("%d\n", arrayQSort[i]);
-	}
-	*/
-	printf("\n");
-	printf("Ordenação QSort:\n 1° número: %d\n Último número: %d\n", arrayQSort[0], arrayQSort[tamanhoArray-1]);
-	printf("Tempo de execução do Qsort (em nanosec): %ld\n\n", tempoQSort);
+	tempoQSort = tempoFinal - tempoInicial;
+	printf("\nOrdenação QSort: ");
+	mostraArray(array, tamanhoArray);
+	printf("Tempo de execução do Qsort (em nanosec): %ld\n", tempoQSort);
 	
+	array = geraArray(tamanhoArray, semente); //Gera array novamente
 	
 	/*Insertion Sort*/
-	
-	//Gera array de novo com mesma semente
-	arrayDesordenada = geraArray(tamanhoArray, semente);
-	
-	//Ordena array com insertion sort
 	tempoInicial = getTime();
-	int * arrayISort = ordenaISort(arrayDesordenada, tamanhoArray);
+	array = ordenaISort(array, tamanhoArray);
 	tempoFinal = getTime();
-	long tempoISort = tempoFinal - tempoInicial;	
-	/*
-	//Imprime array ordenada com insertion sort
-	printf ("\nOrdenação por Insertion Sort:\n\n");
-	for (int i=0; i < tamanhoArray; i++){
-		printf("%d\n", arrayISort[i]);
-	}
-	*/
-	printf("Ordenação ISort:\n 1° número: %d\n Último número: %d\n", arrayISort[0], arrayISort[tamanhoArray-1]);
+	tempoISort = tempoFinal - tempoInicial;
+	printf("\nOrdenação Insertion Sort: ");
+	mostraArray(array, tamanhoArray);
 	printf("Tempo de execução do Insertion sort (em nanosec): %ld\n\n", tempoISort);	
 	
-	//lerArquivo();
-	//escreverArquivo();
-	//Sleep(DELAY);
 }
 
 long getTime (){
@@ -97,59 +55,45 @@ long getTime (){
 }
 
 
-int *geraArray (int tamanho, long semente){
-	array = malloc (tamanho * sizeof(int));
+int *geraArray (int tamanhoArray, long semente){
+	array = malloc (tamanhoArray * sizeof(int));
 	srand (semente);
-	for (int i=0; i<tamanho; i++){
+	for (int i=0; i<tamanhoArray; i++){
 		array[i] = rand();
 	}
 	return array;
 }
 
-int *ordenaQSort (int * minhaArray, long int tamanhoArray){
-	qsort (minhaArray, tamanhoArray, sizeof(int), cmpfunc);
-	return minhaArray;
+void mostraArray (int * array, long tamanhoArray){
+	/*
+	printf("\nSua array é:\n\n");
+	for (int i=0; i < tamanhoArray; i++){
+		printf("%d\n", arrayDesordenada[i]);
+	}
+	*/
+	printf("\n 1° número: %d\n Último número: %d\n", array[0], array[tamanhoArray-1]);
+}
+
+int *ordenaQSort (int * array, long int tamanhoArray){
+	qsort (array, tamanhoArray, sizeof(int), cmpfunc);
+	return array;
 }
 
 int cmpfunc (const void * a, const void * b) {
    return ( *(int*)a - *(int*)b );
 }
 
-int *ordenaISort (int * minhaArray, long int tamanhoArray){
+int *ordenaISort (int * array, long int tamanhoArray){
 	int i;
 	for (int j=1; j<tamanhoArray; j++){
-		int chave = minhaArray[j];
+		int chave = array[j];
 		i = j-1;
-		while (i>=0 && minhaArray[i]>chave){
-			minhaArray[i+1]=minhaArray[i];
+		while (i>=0 && array[i]>chave){
+			array[i+1]=array[i];
 			i=i-1;
 		}
-		minhaArray[i+1]=chave;
+		array[i+1]=chave;
 	}
-	return minhaArray;
+	return array;
 }
-
-/*
-void lerArquivo() {
-	char textoArquivo[BUFLEN];
-  	FILE *arquivo;
-  	arquivo = fopen ("teste1.txt", "rt"); //rt ou rp
-  	if (!arquivo) { // caso haja erro para abrir o arquivo, escreve na tela a mensagem de erro.
-		perror("");
-		return;
-  	}
-  	while (!feof(arquivo)) {
-		if (fgets (textoArquivo, BUFLEN, arquivo)) {
-      			printf ("%s", textoArquivo);
-    		}
- 	}
- 	fclose(arquivo);
-}
- 
-int escreverArquivo() {
-	char buf[BUFLEN];
-	FILE *fp;
-	//fp = fputs ();
-}
-*/
  
